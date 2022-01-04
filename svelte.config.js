@@ -1,18 +1,41 @@
-import adapter from '@sveltejs/adapter-auto';
+// import autoAdapter from '@sveltejs/adapter-auto';
+import nodeAdapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
+import importAssets from 'svelte-preprocess-import-assets';
+import seqPreprocessor from 'svelte-sequential-preprocessor';
+
+import path from 'path';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://github.com/sveltejs/svelte-preprocess
-	// for more information about preprocessors
-	preprocess: preprocess(),
+  compilerOptions: {
+    enableSourcemap: true,
+  },
 
-	kit: {
-		adapter: adapter(),
+  // Consult https://github.com/sveltejs/svelte-preprocess
+  // for more information about preprocessors
+  preprocess: [seqPreprocessor([preprocess({ sourceMap: true }), importAssets()])],
 
-		// hydrate the <div id="svelte"> element in src/app.html
-		target: '#svelte'
-	}
+  kit: {
+    // adapter: autoAdapter({ out: 'build' }),
+    adapter: nodeAdapter({ out: 'build' }),
+
+    // hydrate the <div id="svelte"> element in src/app.html
+    target: '#svelte',
+    // Absolute Imports
+    vite: {
+      resolve: {
+        alias: {
+          src: path.resolve('./src'),
+        },
+      },
+      server: {
+        fs: {
+          allow: ['./assets'],
+        },
+      },
+    },
+  },
 };
 
 export default config;
