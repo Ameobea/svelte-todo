@@ -1,8 +1,9 @@
 import Database from 'better-sqlite3';
 
+import { SQLiteDbFilePath } from 'src/conf';
 import type { Todo } from 'src/types';
 
-export const db = new Database('/tmp/database.db', {});
+export const db = new Database(SQLiteDbFilePath, {});
 
 const runMigrations = () => {
   console.log('Running migrations...');

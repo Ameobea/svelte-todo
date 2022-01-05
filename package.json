@@ -32,8 +32,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@babel/core": "^7.16.7",
-    "@babel/preset-env": "^7.16.7",
     "@types/better-sqlite3": "^7.4.2",
     "better-sqlite3": "^7.4.6",
     "fp-ts": "^2.11.5",

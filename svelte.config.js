@@ -14,7 +14,15 @@ const config = {
 
   // Consult https://github.com/sveltejs/svelte-preprocess
   // for more information about preprocessors
-  preprocess: [seqPreprocessor([preprocess({ sourceMap: true }), importAssets()])],
+  preprocess: [
+    seqPreprocessor([
+      preprocess({
+        sourceMap: true,
+        typescript: { soruceMap: true },
+      }),
+      importAssets(),
+    ]),
+  ],
 
   kit: {
     // adapter: autoAdapter({ out: 'build' }),
