@@ -4,7 +4,7 @@ import { authenticateRequest } from './auth';
 
 export const handle: Handle = async ({ request, resolve }) => {
   if (
-    ['DELETE', 'PATCH', 'PUT', 'DELETE'].includes(request.method) &&
+    ['DELETE', 'PATCH', 'PUT', 'DELETE', 'POST'].includes(request.method) &&
     !(request.url?.pathname.startsWith('/todos/') && request.url.pathname.length > 7 && request.method === 'PATCH')
   ) {
     const authRes = authenticateRequest(request);
