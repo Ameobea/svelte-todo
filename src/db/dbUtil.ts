@@ -4,15 +4,25 @@ import { SQLiteDbFilePath } from 'src/conf';
 import type { Todo } from 'src/types';
 
 export const db = new Database(SQLiteDbFilePath, {});
+db.pragma('foreign_keys = ON;');
 
 const runMigrations = () => {
   console.log('Running migrations...');
   db.prepare(
+    `CREATE TABLE boards (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+    );`
+  ).run();
+  db.prepare(`CREATE UNIQUE INDEX board_name_idx ON boards (name);`).run();
+  db.prepare(
     `CREATE TABLE todos (
       id INTEGER PRIMARY KEY,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      text TEXT,
-      state INTEGER
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      text TEXT NOT NULL,
+      state INTEGER NOT NULL,
+      board_id INTEGER NOT NULL,
+      FOREIGN KEY (board_id) REFERENCES boards (id)
     );`
   ).run();
   console.log('Migrations run successfully');
@@ -23,13 +33,17 @@ if (!tableList.some(t => t.name === 'todos')) {
   runMigrations();
 }
 
-export const createTodo = (content: string, state: number) => {
-  const res = db.prepare('INSERT INTO todos (text, state) VALUES (@content, @state);').run({ content, state });
+export const createTodo = (content: string, state: number, boardID: number) => {
+  const res = db
+    .prepare('INSERT INTO todos (text, state, board_id) VALUES (@content, @state, @boardID);')
+    .run({ content, state, boardID });
   return res.lastInsertRowid;
 };
 
-export const getAllTodos = (): { content: string; state: number; createdAt: Date }[] =>
-  db.prepare('SELECT id, created_At as createdAt, text as content, state FROM todos;').all();
+export const getAllTodosForBoard = (boardID: string): { content: string; state: number; createdAt: Date }[] =>
+  db
+    .prepare('SELECT id, created_at as createdAt, text as content, state FROM todos WHERE board_id = @boardID;')
+    .all({ boardID });
 
 export const getTodoByID = (id: string | number): Todo | null =>
   db.prepare('SELECT id, created_at as createdAt, text as content, state FROM todos WHERE id = @id').get({ id });
@@ -48,4 +62,27 @@ export const deleteTodoById = (id: string | number): boolean => {
 export const updateTodo = ({ content, state, id }: Todo): boolean => {
   const res = db.prepare('UPDATE todos SET state = @state WHERE id = @id;').run({ content, state, id });
   return res.changes > 0;
+};
+
+export const createBoard = (boardName: string): number => {
+  const res = db.prepare('INSERT INTO boards (name) VALUES (@name);').run({ name: boardName });
+  if (typeof res.lastInsertRowid === 'bigint') {
+    throw new Error('Got `bigint` for `lastInsertRowid` returned when creating board');
+  }
+  return res.lastInsertRowid;
+};
+
+export const getAllBoards = (): { id: number; name: string }[] => db.prepare('SELECT name, id FROM boards;').all();
+
+/**
+ * Returns `true` if board deleted successfully, `false` otherwise
+ */
+export const deleteBoardByID = (boardID: number): boolean => {
+  const deleteExistingTodos = db.prepare('DELETE FROM todos WHERE board_id = @boardID;');
+  const deleteBoard = db.prepare('DELETE FROM boards WHERE id = @boardID');
+  return db.transaction(() => {
+    deleteExistingTodos.run({ boardID });
+    const res = deleteBoard.run({ boardID });
+    return res.changes > 0;
+  })();
 };

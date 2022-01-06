@@ -3,11 +3,16 @@ import { isLeft } from 'fp-ts/lib/Either.js';
 import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter.js';
 
-import { createTodo, getAllTodos, getTodoByID } from 'src/db/dbUtil';
+import { createTodo, getAllTodosForBoard, getTodoByID } from 'src/db/dbUtil';
 import { PositiveInt } from 'src/types';
 
-export const get: RequestHandler = () => {
-  const allTodos = getAllTodos();
+export const get: RequestHandler = ({ url }) => {
+  const boardID = url.searchParams.get('boardID');
+  if (!boardID) {
+    return { status: 400, body: 'Missing `boardID` query param' };
+  }
+
+  const allTodos = getAllTodosForBoard(boardID);
   return { body: allTodos };
 };
 
@@ -15,7 +20,12 @@ const CreateTodoRequest = t.type({
   content: t.string,
   state: PositiveInt,
 });
-export const post: RequestHandler = ({ body }) => {
+export const post: RequestHandler = ({ url, body }) => {
+  const boardID = url.searchParams.get('boardID');
+  if (!boardID) {
+    return { status: 400, message: 'Missing `boardID` query param' };
+  }
+
   const parsed = CreateTodoRequest.decode(body);
   if (isLeft(parsed)) {
     return {
@@ -25,7 +35,7 @@ export const post: RequestHandler = ({ body }) => {
   }
 
   const req = parsed.right;
-  const insertedID = createTodo(req.content, req.state);
+  const insertedID = createTodo(req.content, req.state, +boardID);
   console.log(`Created todo with id=${insertedID}`);
   const todo = getTodoByID(`${insertedID}`);
   if (!todo) {

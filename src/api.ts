@@ -14,8 +14,8 @@ export const updateTodo = async (newTodo: Todo) =>
 
 export const deleteTodo = async (id: string | number) => fetch(`/todos/${id}`, { method: 'DELETE' });
 
-export const createTodo = async (content: string, state: number): Promise<Todo> =>
-  fetch('/todos', {
+export const createTodo = async (content: string, state: number, boardID: number): Promise<Todo> =>
+  fetch(`/todos?boardID=${boardID}`, {
     method: 'POST',
     body: JSON.stringify({ content, state }),
     headers: { 'Content-Type': 'application/json' },

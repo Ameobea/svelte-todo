@@ -16,7 +16,12 @@
 <div class="root">
   <h1>Custom Error Page</h1>
   <p>Status: {status}</p>
-  <p>Message: {error.message}</p>
+
+  {#if import.meta.env.DEV}
+    <p style="white-space: pre-line;">{error.stack ?? ''}</p>
+  {:else}
+    <p>Error: {error.message}</p>
+  {/if}
 </div>
 
 <style lang="scss">

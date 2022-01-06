@@ -57,11 +57,6 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@iarna/toml@^2.2.5":
-  version "2.2.5"
-  resolved "https://registry.npmjs.org/@iarna/toml/-/toml-2.2.5.tgz"
-  integrity sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==
-
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz"
@@ -107,31 +102,6 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sveltejs/adapter-auto@next":
-  version "1.0.0-next.7"
-  resolved "https://registry.npmjs.org/@sveltejs/adapter-auto/-/adapter-auto-1.0.0-next.7.tgz"
-  integrity sha512-PGuTgW6bdzKgJJy8a12OCN9ob7/I8ixfWjbBVpKpbjHGc5NmNcS70LoTU55BgVTI7ELp9VoZaJsGFoYp+X5WEw==
-  dependencies:
-    "@sveltejs/adapter-cloudflare" "1.0.0-next.5"
-    "@sveltejs/adapter-netlify" "1.0.0-next.37"
-    "@sveltejs/adapter-vercel" "1.0.0-next.34"
-
-"@sveltejs/adapter-cloudflare@1.0.0-next.5":
-  version "1.0.0-next.5"
-  resolved "https://registry.npmjs.org/@sveltejs/adapter-cloudflare/-/adapter-cloudflare-1.0.0-next.5.tgz"
-  integrity sha512-I7kLcINJz0zik+ufb+IAWSn/EHxdTdmGF0M3tizd87Cxw2ke7N/A6XF8YrYDgZ/4yrAcZnR8Texas/5WxPYZ6g==
-  dependencies:
-    esbuild "^0.13.15"
-
-"@sveltejs/adapter-netlify@1.0.0-next.37":
-  version "1.0.0-next.37"
-  resolved "https://registry.npmjs.org/@sveltejs/adapter-netlify/-/adapter-netlify-1.0.0-next.37.tgz"
-  integrity sha512-Advp53rLMsi9Kg3GYVwWFTmqzIIKCJ2WTrm2zx12Q37RrO+HaY2R+sRMGGGrjD2fk6w1qR7WR9Qt9p0n3moUbw==
-  dependencies:
-    "@iarna/toml" "^2.2.5"
-    esbuild "^0.13.15"
-    tiny-glob "^0.2.9"
-
 "@sveltejs/adapter-node@^1.0.0-next.60":
   version "1.0.0-next.60"
   resolved "https://registry.npmjs.org/@sveltejs/adapter-node/-/adapter-node-1.0.0-next.60.tgz"
@@ -139,17 +109,10 @@
   dependencies:
     tiny-glob "^0.2.9"
 
-"@sveltejs/adapter-vercel@1.0.0-next.34":
-  version "1.0.0-next.34"
-  resolved "https://registry.npmjs.org/@sveltejs/adapter-vercel/-/adapter-vercel-1.0.0-next.34.tgz"
-  integrity sha512-TQDQK2wjDQkoSkNVuFVu4a/hzqKIWCGL15Zi7zQv740ZSd6F2Lg9QHlFfEXMglu6mhoep084h6JiLtzavNiZeA==
-  dependencies:
-    esbuild "^0.13.15"
-
-"@sveltejs/kit@^1.0.0-next.125":
-  version "1.0.0-next.215"
-  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.215.tgz#1054386d013a5818a10d569506ad54516bc52d57"
-  integrity sha512-3y6NFKacahEjgAuGNgs49t2Jf708syKEf6A7uf0dXoQXq3giF+/O1XDF4f+I2g/39iiOtkJMW10tyvIiRG22Hw==
+"@sveltejs/kit@^1.0.0-next.216":
+  version "1.0.0-next.216"
+  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.216.tgz#3324f3e47b2eb04ba42d386d2e09a448c276f650"
+  integrity sha512-FKg7PPlymsZ2aU8DteY1BH217M2dIAgfWzm8OVqazQn2uLbw25WbVqSJ5KdgW83mLYoxSWUNPrJX3TJNEG6jVg==
   dependencies:
     "@sveltejs/vite-plugin-svelte" "^1.0.0-next.32"
     sade "^1.7.4"
@@ -925,7 +888,7 @@ esbuild-windows-arm64@0.13.15:
   resolved "https://registry.yarnpkg.com/esbuild-windows-arm64/-/esbuild-windows-arm64-0.13.15.tgz#482173070810df22a752c686509c370c3be3b3c3"
   integrity sha512-zzvyCVVpbwQQATaf3IG8mu1IwGEiDxKkYUdA4FpoCHi1KtPa13jeScYDjlW0Qh+ebWzpKfR2ZwvqAQkSWNcKjA==
 
-esbuild@^0.13.12, esbuild@^0.13.15:
+esbuild@^0.13.12:
   version "0.13.15"
   resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.13.15.tgz"
   integrity sha512-raCxt02HBKv8RJxE8vkTSCXGIyKHdEdGfUmiYb8wnabnaEmHzyW7DCHb5tEN0xU8ryqg5xw54mcwnYkC4x3AIw==

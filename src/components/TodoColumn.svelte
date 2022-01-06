@@ -14,6 +14,7 @@
 
   export let todos: Todo[] | null;
   export let title: string;
+  export let boardID: number;
   export let colIx: number;
 
   const onFinalize = (
@@ -54,14 +55,15 @@
       <AddTodo
         onAdd={async content => {
           try {
-            const createdTodo = await createTodo(content, colIx);
+            const createdTodo = await createTodo(content, colIx, boardID);
             todos = [...todos, createdTodo];
           } catch (err) {
             alert(`Error creating todo: ${err}`);
           }
         }}
       />
-    </section>{:else}
+    </section>
+  {:else}
     <LoadingTodos />
   {/if}
 </div>

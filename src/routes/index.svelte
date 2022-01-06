@@ -1,18 +1,39 @@
 <script context="module" lang="ts">
   const ColumnTitles = ['Backlog', 'To-Do', 'WIP', 'Done'];
 
-  export const load: Load = async ({ fetch }) => {
-    let fetchedTodos: Todo[];
-    try {
-      const res = await fetch('/todos');
+  const groupTodosByState = (todos: Todo[]): Todo[][] => {
+    const todosByState: Todo[][] = new Array(ColumnTitles.length).fill(null).map(() => []);
+    todos.forEach(todo => todosByState[todo.state].push(todo));
+    return todosByState;
+  };
 
-      if (!res.ok) {
-        return {
-          status: res.status,
-          error: new Error(`Failed to load todos: ${await res.text().catch(() => 'Unknown error')}`),
-        };
+  export const load: Load = async ({ fetch }) => {
+    let boards: { name: string; id: number }[];
+    let fetchedTodos: Todo[] = [];
+    let activeBoardID: number | undefined = undefined;
+    try {
+      const boardsRes = await fetch('/boards');
+      if (!boardsRes.ok) {
+        return { status: boardsRes.status, error: new Error(`Failed to load boards: ${await boardsRes.text()}`) };
       }
-      fetchedTodos = await res.json();
+
+      boards = await boardsRes.json();
+      // TODO: persist last selected board ID and use that instead of the first one
+      activeBoardID = boards[0]?.id;
+
+      if (activeBoardID !== undefined) {
+        const todosRes = await fetch(`/todos?boardID=${activeBoardID}`);
+
+        if (!todosRes.ok) {
+          const errText = await todosRes.text().catch(() => 'Unknown error');
+          console.error('Error fetching todos: ', errText);
+          return {
+            status: todosRes.status,
+            error: new Error(`Failed to load todos: ${errText}`),
+          };
+        }
+        fetchedTodos = await todosRes.json();
+      }
     } catch (err) {
       console.error(`Error fetching todos: ${err}`);
       return { status: 500, error: 'Error fetching todos' };
@@ -20,24 +41,25 @@
 
     const todos = { type: 'loaded' };
 
-    const todosByState = new Array(ColumnTitles.length).fill(null).map(() => []);
-    if (todos.type === 'loaded') {
-      fetchedTodos.forEach(todo => {
-        if (!todosByState[todo.state]) {
-          todosByState[todo.state] = [];
-        }
-        todosByState[todo.state].push(todo);
-      });
-    }
+    const todosByState =
+      todos.type === 'loaded'
+        ? groupTodosByState(fetchedTodos)
+        : new Array(ColumnTitles.length).fill(null).map(() => []);
 
     return {
-      props: { todosByState, todos },
+      props: {
+        todosByStateByBoardID: activeBoardID === undefined ? {} : { [activeBoardID]: todosByState },
+        todos,
+        boards,
+        activeBoardID,
+      },
     };
   };
 </script>
 
 <script lang="ts">
   import type { Load } from '@sveltejs/kit';
+  import BoardPicker from 'src/components/BoardPicker.svelte';
 
   import TodoColumn from 'src/components/TodoColumn.svelte';
   import type { Todo } from 'src/types';
@@ -45,7 +67,29 @@
   export let todos: { type: 'loading' } | { type: 'loaded' } | { type: 'error'; message: string } = {
     type: 'loading',
   };
-  export let todosByState: Todo[][] = new Array(ColumnTitles.length).fill(null).map(() => []);
+  export let boards: { name: string; id: number }[];
+  export let activeBoardID: number | undefined;
+  export let todosByStateByBoardID: { [boardID: number]: Todo[][] };
+  $: if (activeBoardID !== undefined && !todosByStateByBoardID[activeBoardID]) {
+    todosByStateByBoardID[activeBoardID] = new Array(ColumnTitles.length).fill(null).map(() => []);
+  }
+
+  // Re-fetch todos from backend when active board id is switched
+  let lastActiveBoardID: number | undefined = activeBoardID;
+  $: if (activeBoardID !== lastActiveBoardID && activeBoardID !== undefined) {
+    console.log('Re-fetching todos for board', { activeBoardID });
+    lastActiveBoardID = activeBoardID;
+    const activeBoardIDCopy = activeBoardID;
+    fetch(`/todos?boardID=${activeBoardIDCopy}`).then(async res => {
+      if (!res.ok) {
+        throw await res.text();
+      }
+      res.json().then(todosForActiveBoard => {
+        console.log('Fetched todos for board', { activeBoardID: activeBoardIDCopy, todosForActiveBoard });
+        todosByStateByBoardID[activeBoardIDCopy] = groupTodosByState(todosForActiveBoard);
+      });
+    });
+  }
 </script>
 
 <svelte:head>
@@ -53,16 +97,24 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-  <!-- <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet" /> -->
+  <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet" />
 </svelte:head>
 
 <div class="root">
-  {#if todos.type === 'error'}
+  <BoardPicker bind:boards bind:activeBoardID />
+  {#if activeBoardID === undefined}
+    <span style="color: orange">No Board Selected; TODO</span>
+  {:else if todos.type === 'error'}
     <span style="color: red">Error fetching todos: {todos.message}</span>
   {:else}
     <div class="columns-container">
-      {#each ColumnTitles as title, i}
-        <TodoColumn {title} bind:todos={todosByState[i]} colIx={i} />
+      {#each ColumnTitles as title, state}
+        <TodoColumn
+          {title}
+          bind:todos={todosByStateByBoardID[activeBoardID][state]}
+          colIx={state}
+          boardID={activeBoardID}
+        />
       {/each}
     </div>
   {/if}
