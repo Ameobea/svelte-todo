@@ -11,11 +11,26 @@
   import TodoCard from './TodoCard.svelte';
   import { createTodo, updateTodo } from 'src/api';
   import AddTodo from './AddTodo.svelte';
+  import { onMount } from 'svelte';
 
   export let todos: Todo[] | null;
   export let title: string;
   export let boardID: number;
   export let colIx: number;
+
+  let dragDisabled = false;
+
+  onMount(() => {
+    const mouseUpCb = () => {
+      dragDisabled = false;
+    };
+    window.addEventListener('mouseup', mouseUpCb);
+
+    return () => {
+      console.log('Removing event listener');
+      window.removeEventListener('mouseup', mouseUpCb);
+    };
+  });
 
   const onFinalize = (
     e: CustomEvent<DndEvent> & {
@@ -43,7 +58,7 @@
   {#if todos}
     <section
       class="content"
-      use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs }}
+      use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs, dragDisabled }}
       on:consider={handleSort}
       on:finalize={onFinalize}
     >
@@ -67,6 +82,12 @@
           } catch (err) {
             alert(`Error creating todo: ${err}`);
           }
+        }}
+        on:mousedown={() => {
+          dragDisabled = true;
+        }}
+        on:mouseup={() => {
+          dragDisabled = false;
         }}
       />
     </section>

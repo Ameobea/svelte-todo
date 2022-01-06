@@ -25,6 +25,9 @@ const runMigrations = () => {
       FOREIGN KEY (board_id) REFERENCES boards (id)
     );`
   ).run();
+  db.prepare(`CREATE TABLE kv_store (key TEXT NOT NULL, value TEXT);`).run();
+  db.prepare('INSERT INTO kv_store (key, value) VALUES (@key, @value);').run({ key: 'last_active_board_id', value: 0 });
+  db.prepare(`CREATE UNIQUE INDEX kv_store_key_idx ON kv_store (key);`).run();
   console.log('Migrations run successfully');
 };
 
@@ -86,3 +89,23 @@ export const deleteBoardByID = (boardID: number): boolean => {
     return res.changes > 0;
   })();
 };
+
+export const getLastActiveBoardID = (): number | null => {
+  const { val } = db.prepare("SELECT value as val FROM kv_store WHERE key = 'last_active_board_id';").get();
+  if (typeof val === 'number') {
+    return val;
+  }
+  if (!val) {
+    return null;
+  }
+  const parsed = parseInt(val, 10);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return parsed;
+};
+
+export const setLastActiveBoardID = (activeBoardID: number) =>
+  db
+    .prepare('INSERT OR REPLACE INTO kv_store (key, value) VALUES (@key, @value);')
+    .run({ key: 'last_active_board_id', value: `${activeBoardID}` });

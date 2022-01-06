@@ -54,7 +54,9 @@
   <select
     value={activeBoardID}
     on:change={evt => {
-      activeBoardID = +evt.currentTarget.value;
+      const newActiveBoardID = +evt.currentTarget.value;
+      activeBoardID = newActiveBoardID;
+      fetch(`/activeBoardID?boardID=${newActiveBoardID}`, { method: 'POST' });
     }}
   >
     {#each boards as board (board.id)}

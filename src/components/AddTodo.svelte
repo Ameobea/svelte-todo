@@ -31,6 +31,8 @@
       isExpanded = true;
     }
   }}
+  on:mousedown
+  on:mouseup
 >
   {#if isExpanded}
     <div class="expanded-wrapper">
