@@ -34,13 +34,12 @@
     }
 
     try {
-      const res = await fetch(`/boards/${activeBoardID}`, { method: 'DELETE' }).then(async res => {
+      await fetch(`/boards/${activeBoardID}`, { method: 'DELETE' }).then(async res => {
         if (!res.ok) {
           throw await res.text();
         }
         return res.text();
       });
-      console.log({ boardDeleteRes: res });
       const newBoards = boards.filter(board => board.id !== activeBoardID);
       activeBoardID = newBoards[0]?.id;
       boards = newBoards;

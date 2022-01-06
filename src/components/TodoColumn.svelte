@@ -49,14 +49,21 @@
     >
       {#each todos as todo (todo.id)}
         <div animate:flip={{ duration: FlipDurationMs }}>
-          <TodoCard {todo} onDelete={() => (todos = todos.filter(otodo => otodo.id !== todo.id))} />
+          <TodoCard
+            {todo}
+            onDelete={() => {
+              if (todos) {
+                todos = todos.filter(otodo => otodo.id !== todo.id);
+              }
+            }}
+          />
         </div>
       {/each}
       <AddTodo
         onAdd={async content => {
           try {
             const createdTodo = await createTodo(content, colIx, boardID);
-            todos = [...todos, createdTodo];
+            todos = [...(todos ?? []), createdTodo];
           } catch (err) {
             alert(`Error creating todo: ${err}`);
           }

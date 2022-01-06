@@ -134,6 +134,19 @@
     height: 100%;
   }
 
+  :global(button) {
+    background-color: #222;
+    border: 1px solid #777;
+    color: #eee;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  :global(select) {
+    background-color: #222;
+    color: #eee;
+  }
+
   .root {
     display: flex;
     flex-direction: column;
