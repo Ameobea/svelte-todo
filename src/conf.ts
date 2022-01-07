@@ -1,12 +1,11 @@
-const normalizeEnvVar = (v: string | boolean | null | undefined) => (v ? `${v}` : undefined);
+const getRuntimeEnvVar = (name: string) => {
+  const val = process.env[name];
+  if (!val) {
+    console.error(`Missing expected \`${name}\` environment variable`);
+    process.exit(1);
+  }
+  return val;
+};
 
-export const ExpectedBasicAuthValue = normalizeEnvVar(import.meta.env['VITE_HTTP_BASIC_AUTH_EXPECTED_VALUE'])!;
-export const SQLiteDbFilePath = normalizeEnvVar(import.meta.env['VITE_SQLITE_DB_FILE_PATH'])!;
-
-if (!ExpectedBasicAuthValue) {
-  console.error('Missing expected `VITE_HTTP_BASIC_AUTH_EXPECTED_VALUE` environment variable');
-  process.exit(1);
-} else if (!SQLiteDbFilePath) {
-  console.error('Missing expected `VITE_SQLITE_DB_FILE_PATH` environment variable');
-  process.exit(1);
-}
+export const ExpectedBasicAuthValue = getRuntimeEnvVar('VITE_HTTP_BASIC_AUTH_EXPECTED_VALUE');
+export const SQLiteDbFilePath = getRuntimeEnvVar('VITE_SQLITE_DB_FILE_PATH');
