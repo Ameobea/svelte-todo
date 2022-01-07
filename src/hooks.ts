@@ -9,7 +9,11 @@ export const handle: Handle = async ({ request, resolve }) => {
   ) {
     const authRes = authenticateRequest(request);
     if (authRes) {
-      return authRes;
+      if (request.url.pathname.includes('/activeBoardID')) {
+        return { status: 203, headers: {} };
+      } else {
+        return authRes;
+      }
     }
   }
 
