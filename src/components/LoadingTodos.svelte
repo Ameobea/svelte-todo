@@ -1,6 +1,6 @@
 <div class="root">Loading...</div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: column;

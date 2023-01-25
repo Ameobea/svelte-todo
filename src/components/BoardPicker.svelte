@@ -54,6 +54,7 @@
   <select
     value={activeBoardID}
     on:change={evt => {
+      console.log('change', evt.currentTarget.value);
       const newActiveBoardID = +evt.currentTarget.value;
       activeBoardID = newActiveBoardID;
       fetch(`/activeBoardID?boardID=${newActiveBoardID}`, { method: 'POST' });
@@ -69,7 +70,7 @@
   {/if}
 </div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: row;

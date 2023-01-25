@@ -1,37 +1,35 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { type RequestHandler, error, json } from '@sveltejs/kit';
 import { isLeft } from 'fp-ts/lib/Either.js';
 import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter.js';
 
-import { createTodo, getAllTodosForBoard, getTodoByID } from 'src/db/dbUtil';
-import { PositiveInt } from 'src/types';
+import { createTodo, getAllTodosForBoard, getTodoByID } from '../../db/dbUtil';
+import { PositiveInt } from '../../types';
 
-export const get: RequestHandler = ({ url }) => {
+export const GET: RequestHandler = ({ url }) => {
   const boardID = url.searchParams.get('boardID');
   if (!boardID) {
-    return { status: 400, body: 'Missing `boardID` query param' };
+    throw error(400, 'Missing `boardID` query param');
   }
 
   const allTodos = getAllTodosForBoard(boardID);
-  return { body: allTodos };
+  return json(allTodos);
 };
 
 const CreateTodoRequest = t.type({
   content: t.string,
   state: PositiveInt,
 });
-export const post: RequestHandler = ({ url, body }) => {
+export const POST: RequestHandler = async ({ url, request }) => {
+  const body = await request.json();
   const boardID = url.searchParams.get('boardID');
   if (!boardID) {
-    return { status: 400, message: 'Missing `boardID` query param' };
+    throw error(400, 'Missing `boardID` query param');
   }
 
   const parsed = CreateTodoRequest.decode(body);
   if (isLeft(parsed)) {
-    return {
-      status: 400,
-      body: `Invalid request body: ${PathReporter.report(parsed)}`,
-    };
+    throw error(400, `Invalid request body: ${PathReporter.report(parsed)}`);
   }
 
   const req = parsed.right;
@@ -39,7 +37,7 @@ export const post: RequestHandler = ({ url, body }) => {
   console.log(`Created todo with id=${insertedID}`);
   const todo = getTodoByID(`${insertedID}`);
   if (!todo) {
-    throw new Error('Inserted todo was not found just after creating it');
+    throw error(500, 'Inserted todo was not found just after creating it');
   }
-  return { body: { ...todo } };
+  return json(todo);
 };

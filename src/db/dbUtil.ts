@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 
-import { SQLiteDbFilePath } from 'src/conf';
-import type { Todo } from 'src/types';
+import { SQLiteDbFilePath } from '../conf';
+import type { Todo } from '../types';
 
 export const db = new Database(SQLiteDbFilePath, {});
 db.pragma('foreign_keys = ON;');

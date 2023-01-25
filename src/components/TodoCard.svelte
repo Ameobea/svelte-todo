@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { deleteTodo } from 'src/api';
-  import type { Todo } from 'src/types';
+  import { deleteTodo } from '../api';
+  import type { Todo } from '../types';
 
   export let todo: Todo;
   export let onDelete: () => void;
@@ -14,7 +14,7 @@
   <button class="close-button" on:click={() => deleteTodo(todo.id).then(onDelete)}>×</button>
 </div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: row;

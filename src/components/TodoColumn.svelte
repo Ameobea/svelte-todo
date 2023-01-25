@@ -6,10 +6,10 @@
   import { dndzone } from 'svelte-dnd-action';
   import { flip } from 'svelte/animate';
 
-  import type { Todo } from 'src/types';
+  import type { Todo } from '../types';
   import LoadingTodos from './LoadingTodos.svelte';
   import TodoCard from './TodoCard.svelte';
-  import { createTodo, updateTodo } from 'src/api';
+  import { createTodo, updateTodo } from '../api';
   import AddTodo from './AddTodo.svelte';
   import { onMount } from 'svelte';
 
@@ -62,18 +62,6 @@
       on:consider={handleSort}
       on:finalize={onFinalize}
     >
-      {#each todos as todo (todo.id)}
-        <div animate:flip={{ duration: FlipDurationMs }}>
-          <TodoCard
-            {todo}
-            onDelete={() => {
-              if (todos) {
-                todos = todos.filter(otodo => otodo.id !== todo.id);
-              }
-            }}
-          />
-        </div>
-      {/each}
       <AddTodo
         onAdd={async content => {
           try {
@@ -90,26 +78,39 @@
           dragDisabled = false;
         }}
       />
+      {#each todos as todo (todo.id)}
+        <div animate:flip={{ duration: FlipDurationMs }}>
+          <TodoCard
+            {todo}
+            onDelete={() => {
+              if (todos) {
+                todos = todos.filter(otodo => otodo.id !== todo.id);
+              }
+            }}
+          />
+        </div>
+      {/each}
     </section>
   {:else}
     <LoadingTodos />
   {/if}
 </div>
 
-<style lang="scss">
+<style lang="css">
   .wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
     margin-left: calc(max(10px, 1.2vw));
     margin-right: calc(max(10px, 1.2vw));
+    max-height: 100%;
+  }
 
-    .title {
-      text-align: center;
-      font-size: 26px;
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
+  .wrapper .title {
+    text-align: center;
+    font-size: 26px;
+    margin-top: 0;
+    margin-bottom: 8px;
   }
 
   .content {

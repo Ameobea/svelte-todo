@@ -1,4 +1,3 @@
-// import autoAdapter from '@sveltejs/adapter-auto';
 import nodeAdapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
 import importAssets from 'svelte-preprocess-import-assets';
@@ -25,24 +24,8 @@ const config = {
   ],
 
   kit: {
-    // adapter: autoAdapter({ out: 'build' }),
-    adapter: nodeAdapter({ out: 'build' }),
-
-    // hydrate the <div id="svelte"> element in src/app.html
-    target: '#svelte',
-    // Absolute Imports
-    vite: {
-      resolve: {
-        alias: {
-          src: path.resolve('./src'),
-        },
-      },
-      server: {
-        fs: {
-          allow: ['./assets'],
-        },
-      },
-    },
+    inlineStyleThreshold: 2048,
+    adapter: nodeAdapter({ out: 'build', precompress: true }),
   },
 };
 

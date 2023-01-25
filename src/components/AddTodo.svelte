@@ -60,30 +60,30 @@
   {/if}
 </div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 0;
     padding: 20px;
   }
 
   .expanded-wrapper {
     display: flex;
     flex-direction: column;
+  }
 
-    textarea {
-      background-color: #121212;
-      margin-bottom: 6px;
-      color: #ccc;
-      height: 100px;
-    }
+  .expanded-wrapper textarea {
+    background-color: #121212;
+    margin-bottom: 6px;
+    color: #ccc;
+    height: 100px;
+  }
 
-    .buttons-container {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
+  .expanded-wrapper .buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
 
   .add-button {
