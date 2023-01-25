@@ -6,7 +6,6 @@ export const updateTodo = async (newTodo: Todo) =>
     body: JSON.stringify(newTodo),
     headers: { 'Content-Type': 'application/json' },
   }).then(async res => {
-    console.log('Status from updating todo: ', res.status);
     if (!res.ok) {
       throw await res.text;
     }

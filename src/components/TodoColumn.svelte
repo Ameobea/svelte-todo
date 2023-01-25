@@ -26,10 +26,7 @@
     };
     window.addEventListener('mouseup', mouseUpCb);
 
-    return () => {
-      console.log('Removing event listener');
-      window.removeEventListener('mouseup', mouseUpCb);
-    };
+    return () => window.removeEventListener('mouseup', mouseUpCb);
   });
 
   const onFinalize = (
@@ -56,12 +53,7 @@
 <div class="wrapper">
   <h2 class="title">{title}</h2>
   {#if todos}
-    <section
-      class="content"
-      use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs, dragDisabled }}
-      on:consider={handleSort}
-      on:finalize={onFinalize}
-    >
+    <section class="content">
       <AddTodo
         onAdd={async content => {
           try {
@@ -78,18 +70,25 @@
           dragDisabled = false;
         }}
       />
-      {#each todos as todo (todo.id)}
-        <div animate:flip={{ duration: FlipDurationMs }}>
-          <TodoCard
-            {todo}
-            onDelete={() => {
-              if (todos) {
-                todos = todos.filter(otodo => otodo.id !== todo.id);
-              }
-            }}
-          />
-        </div>
-      {/each}
+      <div
+        class="todos"
+        use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs, dragDisabled }}
+        on:consider={handleSort}
+        on:finalize={onFinalize}
+      >
+        {#each todos as todo (todo.id)}
+          <div animate:flip={{ duration: FlipDurationMs }}>
+            <TodoCard
+              {todo}
+              onDelete={() => {
+                if (todos) {
+                  todos = todos.filter(otodo => otodo.id !== todo.id);
+                }
+              }}
+            />
+          </div>
+        {/each}
+      </div>
     </section>
   {:else}
     <LoadingTodos />
@@ -123,5 +122,11 @@
     overflow-y: auto;
     min-width: 200px;
     min-height: 300px;
+  }
+
+  .todos {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 </style>
