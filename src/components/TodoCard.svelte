@@ -14,7 +14,7 @@
   <button class="close-button" on:click={() => deleteTodo(todo.id).then(onDelete)}>×</button>
 </div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: row;

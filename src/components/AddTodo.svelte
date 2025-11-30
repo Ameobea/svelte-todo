@@ -60,11 +60,10 @@
   {/if}
 </div>
 
-<style lang="scss">
+<style lang="css">
   .root {
     display: flex;
     flex-direction: column;
-    flex: 1;
     padding: 20px;
   }
 

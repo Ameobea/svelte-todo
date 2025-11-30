@@ -1,9 +1,5 @@
-<script context="module" lang="ts">
-  export const FlipDurationMs = 40;
-</script>
-
 <script lang="ts">
-  import { dndzone } from 'svelte-dnd-action';
+  import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import { flip } from 'svelte/animate';
 
   import type { Todo } from 'src/types';
@@ -17,6 +13,8 @@
   export let title: string;
   export let boardID: number;
   export let colIx: number;
+
+  const FlipDurationMs = 40;
 
   let dragDisabled = false;
 
@@ -56,24 +54,7 @@
 <div class="wrapper">
   <h2 class="title">{title}</h2>
   {#if todos}
-    <section
-      class="content"
-      use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs, dragDisabled }}
-      on:consider={handleSort}
-      on:finalize={onFinalize}
-    >
-      {#each todos as todo (todo.id)}
-        <div animate:flip={{ duration: FlipDurationMs }}>
-          <TodoCard
-            {todo}
-            onDelete={() => {
-              if (todos) {
-                todos = todos.filter(otodo => otodo.id !== todo.id);
-              }
-            }}
-          />
-        </div>
-      {/each}
+    <section class="content">
       <AddTodo
         onAdd={async content => {
           try {
@@ -90,19 +71,39 @@
           dragDisabled = false;
         }}
       />
+      <div
+        use:dndzone={{ items: todos, flipDurationMs: FlipDurationMs, dragDisabled }}
+        on:consider={handleSort}
+        on:finalize={onFinalize}
+        style="flex-grow: 1;"
+      >
+        {#each todos as todo (todo.id)}
+          <div animate:flip={{ duration: FlipDurationMs }}>
+            <TodoCard
+              {todo}
+              onDelete={() => {
+                if (todos) {
+                  todos = todos.filter(otodo => otodo.id !== todo.id);
+                }
+              }}
+            />
+          </div>
+        {/each}
+      </div>
     </section>
   {:else}
     <LoadingTodos />
   {/if}
 </div>
 
-<style lang="scss">
+<style lang="css">
   .wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
     margin-left: calc(max(10px, 1.2vw));
     margin-right: calc(max(10px, 1.2vw));
+    max-height: 100%;
 
     .title {
       text-align: center;

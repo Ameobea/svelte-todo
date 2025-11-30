@@ -1,49 +1,21 @@
-// import autoAdapter from '@sveltejs/adapter-auto';
-import nodeAdapter from '@sveltejs/adapter-node';
-import preprocess from 'svelte-preprocess';
-import importAssets from 'svelte-preprocess-import-assets';
-import seqPreprocessor from 'svelte-sequential-preprocessor';
-
-import path from 'path';
+import adapter from '@sveltejs/adapter-node';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  compilerOptions: {
-    enableSourcemap: true,
-  },
+	// Consult https://svelte.dev/docs/kit/integrations
+	// for more information about preprocessors
+	preprocess: vitePreprocess(),
 
-  // Consult https://github.com/sveltejs/svelte-preprocess
-  // for more information about preprocessors
-  preprocess: [
-    seqPreprocessor([
-      preprocess({
-        sourceMap: true,
-        typescript: { soruceMap: true },
-      }),
-      importAssets(),
-    ]),
-  ],
-
-  kit: {
-    // adapter: autoAdapter({ out: 'build' }),
-    adapter: nodeAdapter({ out: 'build' }),
-
-    // hydrate the <div id="svelte"> element in src/app.html
-    target: '#svelte',
-    // Absolute Imports
-    vite: {
-      resolve: {
-        alias: {
-          src: path.resolve('./src'),
-        },
-      },
-      server: {
-        fs: {
-          allow: ['./assets'],
-        },
-      },
-    },
-  },
+	kit: {
+		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
+		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
+		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
+		adapter: adapter(),
+		alias: {
+			src: 'src'
+		}
+	}
 };
 
 export default config;

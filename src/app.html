@@ -1,14 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="description" content="" />
-		<link rel="icon" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<script async defer data-domain="sveltekit-todo.ameo.dev" src="https://pause.ameo.dev/js/pause.js"></script>
-		%svelte.head%
+		<script
+			async
+			defer
+			data-domain="sveltekit-todo.ameo.dev"
+			src="https://pause.ameo.dev/js/pause.js"
+		></script>
+		<style>
+			body {
+				background-color: #121212;
+				color: #ccc;
+				font-family: 'IBM Plex Sans', sans-serif;
+				margin: 0;
+				padding: 0;
+				height: 100vh;
+			}
+
+			#svelte {
+				height: 100%;
+			}
+
+			button {
+				background-color: #222;
+				border: 1px solid #777;
+				color: #eee;
+				cursor: pointer;
+				font-size: 16px;
+			}
+
+			select {
+				background-color: #222;
+				color: #eee;
+			}
+
+			html {
+				color-scheme: dark;
+			}
+		</style>
+		%sveltekit.head%
 	</head>
-	<body>
-		<div id="svelte">%svelte.body%</div>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

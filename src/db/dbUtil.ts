@@ -11,7 +11,8 @@ const runMigrations = () => {
   db.prepare(
     `CREATE TABLE boards (
       id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL
+      name TEXT NOT NULL,
+      archived INTEGER NOT NULL DEFAULT 0
     );`
   ).run();
   db.prepare(`CREATE UNIQUE INDEX board_name_idx ON boards (name);`).run();
@@ -26,14 +27,25 @@ const runMigrations = () => {
     );`
   ).run();
   db.prepare(`CREATE TABLE kv_store (key TEXT NOT NULL, value TEXT);`).run();
-  db.prepare('INSERT INTO kv_store (key, value) VALUES (@key, @value);').run({ key: 'last_active_board_id', value: 0 });
+  db.prepare('INSERT INTO kv_store (key, value) VALUES (@key, @value);').run({
+    key: 'last_active_board_id',
+    value: 0,
+  });
   db.prepare(`CREATE UNIQUE INDEX kv_store_key_idx ON kv_store (key);`).run();
   console.log('Migrations run successfully');
 };
 
-const tableList: { name: string }[] = db.pragma('table_list');
+const tableList: { name: string }[] = db.pragma('table_list') as { name: string }[];
 if (!tableList.some(t => t.name === 'todos')) {
   runMigrations();
+} else {
+  // Run additional migrations for existing databases
+  const boardColumns = db.pragma('table_info(boards)') as { name: string }[];
+  if (!boardColumns.some(col => col.name === 'archived')) {
+    console.log('Adding archived column to boards table...');
+    db.prepare('ALTER TABLE boards ADD COLUMN archived INTEGER NOT NULL DEFAULT 0;').run();
+    console.log('Migration complete');
+  }
 }
 
 export const createTodo = (content: string, state: number, boardID: number) => {
@@ -46,10 +58,12 @@ export const createTodo = (content: string, state: number, boardID: number) => {
 export const getAllTodosForBoard = (boardID: string): { content: string; state: number; createdAt: Date }[] =>
   db
     .prepare('SELECT id, created_at as createdAt, text as content, state FROM todos WHERE board_id = @boardID;')
-    .all({ boardID });
+    .all({ boardID }) as { content: string; state: number; createdAt: Date }[];
 
 export const getTodoByID = (id: string | number): Todo | null =>
-  db.prepare('SELECT id, created_at as createdAt, text as content, state FROM todos WHERE id = @id').get({ id });
+  db
+    .prepare('SELECT id, created_at as createdAt, text as content, state FROM todos WHERE id = @id')
+    .get({ id }) as Todo | null;
 
 /**
  * Returns `true` if todo deleted successfully, `false` otherwise
@@ -75,7 +89,22 @@ export const createBoard = (boardName: string): number => {
   return res.lastInsertRowid;
 };
 
-export const getAllBoards = (): { id: number; name: string }[] => db.prepare('SELECT name, id FROM boards;').all();
+export const getAllBoards = (): { id: number; name: string; archived: boolean }[] =>
+  db.prepare('SELECT name, id, archived FROM boards').all() as {
+    id: number;
+    name: string;
+    archived: boolean;
+  }[];
+
+export const archiveBoardByID = (boardID: number): boolean => {
+  const res = db.prepare('UPDATE boards SET archived = 1 WHERE id = @boardID;').run({ boardID });
+  return res.changes > 0;
+};
+
+export const unarchiveBoardByID = (boardID: number): boolean => {
+  const res = db.prepare('UPDATE boards SET archived = 0 WHERE id = @boardID;').run({ boardID });
+  return res.changes > 0;
+};
 
 /**
  * Returns `true` if board deleted successfully, `false` otherwise
@@ -91,7 +120,9 @@ export const deleteBoardByID = (boardID: number): boolean => {
 };
 
 export const getLastActiveBoardID = (): number | null => {
-  const { val } = db.prepare("SELECT value as val FROM kv_store WHERE key = 'last_active_board_id';").get();
+  const { val } = db.prepare("SELECT value as val FROM kv_store WHERE key = 'last_active_board_id';").get() as {
+    val: string | number | null;
+  };
   if (typeof val === 'number') {
     return val;
   }

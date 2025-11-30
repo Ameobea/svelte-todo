@@ -20,3 +20,5 @@ export const NumberFromString: D.Decoder<unknown, number> = pipe(
     return isNaN(n) ? D.failure(s, 'NumberFromString') : D.success(n);
   })
 );
+
+export const ColumnTitles = ['Backlog', 'To-Do', 'WIP', 'Done'];

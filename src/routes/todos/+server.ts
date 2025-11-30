@@ -6,32 +6,37 @@ import { PathReporter } from 'io-ts/lib/PathReporter.js';
 import { createTodo, getAllTodosForBoard, getTodoByID } from 'src/db/dbUtil';
 import { PositiveInt } from 'src/types';
 
-export const get: RequestHandler = ({ url }) => {
+export const GET: RequestHandler = ({ url }) => {
   const boardID = url.searchParams.get('boardID');
   if (!boardID) {
-    return { status: 400, body: 'Missing `boardID` query param' };
+    return new Response('Missing `boardID` query param', { status: 400 });
   }
 
   const allTodos = getAllTodosForBoard(boardID);
-  return { body: allTodos };
+  return new Response(JSON.stringify(allTodos), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 };
 
 const CreateTodoRequest = t.type({
   content: t.string,
   state: PositiveInt,
 });
-export const post: RequestHandler = ({ url, body }) => {
+
+export const POST: RequestHandler = async ({ url, request }) => {
   const boardID = url.searchParams.get('boardID');
   if (!boardID) {
-    return { status: 400, message: 'Missing `boardID` query param' };
+    return new Response('Missing `boardID` query param', { status: 400 });
   }
 
+  const body = await request.json();
+  if (!body) {
+    return new Response('Missing request body', { status: 400 });
+  }
   const parsed = CreateTodoRequest.decode(body);
   if (isLeft(parsed)) {
-    return {
-      status: 400,
-      body: `Invalid request body: ${PathReporter.report(parsed)}`,
-    };
+    return new Response(`Invalid request body: ${PathReporter.report(parsed)}`, { status: 400 });
   }
 
   const req = parsed.right;
@@ -41,5 +46,8 @@ export const post: RequestHandler = ({ url, body }) => {
   if (!todo) {
     throw new Error('Inserted todo was not found just after creating it');
   }
-  return { body: { ...todo } };
+  return new Response(JSON.stringify({ ...todo }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 };
